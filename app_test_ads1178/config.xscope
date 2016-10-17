@@ -14,17 +14,17 @@
 <!--   "NONE", "UINT", "INT", "FLOAT"                        -->
 <!-- ======================================================= -->
 
-<xSCOPEconfig ioMode="basic" enabled="true">
+<xSCOPEconfig ioMode="basic" enabled="false">
     <!-- For example: -->
     <!-- <Probe name="Probe Name" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/> -->
     <!-- From the target code, call: xscope_int(PROBE_NAME, value); -->
-	<Probe name="CHANNEL0" type="DISCRETE" datatype="INT" units="Vref" enabled="true"/> 
-	<Probe name="CHANNEL1" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL2" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL3" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL4" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL5" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL6" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
-	<Probe name="CHANNEL7" type="CONTINUOUS" datatype="INT" units="Vref" enabled="false"/> 
+	<Probe name="CHANNEL0" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL1" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL2" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL3" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL4" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL5" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL6" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
+	<Probe name="CHANNEL7" type="CONTINUOUS" datatype="INT" units="Vref" enabled="true"/> 
 
 </xSCOPEconfig>

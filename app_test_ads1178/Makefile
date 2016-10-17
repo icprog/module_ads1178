@@ -9,7 +9,7 @@ TARGET = Harting
 APP_NAME = app_test_ads1178
 
 # The USED_MODULES variable lists other module used by the application.
-USED_MODULES = lib_spi
+USED_MODULES = module_ads1178
 
 # The flags passed to xcc when building the application
 # You can also set the following to override flags for a particular language:
