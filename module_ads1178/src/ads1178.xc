@@ -135,7 +135,7 @@ void spi_transfer(
     {
         for (int b = 0; b < 32; ++b)
         {
-                if(b/8!=0 | r>0)
+                if( (b/8!=0) || (r>0) )
                 {
                     data.ch[b%8]<<=1;
                     //printf("-");
@@ -183,7 +183,7 @@ void ads1178_service(server interface adc_ads1178_if i_ctrl, ads1178_settings& s
                       settings.c_clk[0],
                       settings.c_clk[1],
                       SPI_MODE_1,
-                      100000/100 //TODO test more
+                      100000
                       );
 
             ads1178_data_t data;
