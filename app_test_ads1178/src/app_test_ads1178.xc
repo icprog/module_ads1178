@@ -51,6 +51,7 @@ void main_ctrl(client interface adc_ads1178_if adc_if)
 {
 
     printf("Start!\n");
+    int i=0;
     while(1)
     {
         select
@@ -67,11 +68,20 @@ void main_ctrl(client interface adc_ads1178_if adc_if)
           xscope_int(CHANNEL6, x.ch[6]);
           xscope_int(CHANNEL7, x.ch[7]);
 # else
-          printf("0x%0.8X 0x%0.8X 0x%0.8X 0x%0.8X 0x%0.8X 0x%0.8X 0x%0.8X 0x%0.8X\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
+          if(i!=0)
+          printf("0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
           //printf("%i %i %i %i %i %i %i %i\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
 
 #endif
           break;
+        }
+
+        i++;
+        if(i==10)
+        {
+            adc_if.power_down();
+            while(1);
+            printf("Done! Power Down!\n");
         }
     }
 }
