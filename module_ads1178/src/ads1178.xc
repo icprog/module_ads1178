@@ -129,24 +129,27 @@ void spi_transfer(
         miso :> data;
         raw_in[cur]=data;
     }
-
+    //printf("\n");
     //fiddle the data out of the stream
-    for (int ch= 0; ch < 8; ++ch)
+    for (int r = 0; r < 4; ++r)
     {
-        for (int bit = 0; bit < 16; ++bit)
+        for (int b = 0; b < 32; ++b)
         {
-            //get in which raw variable the bit is stored
-            uint32_t cur_raw=raw_in[3-bit/4];
+                if(b/8!=0 | r>0)
+                {
+                    data.ch[b%8]<<=1;
+                    //printf("-");
+                }
+                data.ch[b%8]|=!!(raw_in[r]&(1<<b));
 
+                //if(b%8==0)
+                //printf("%i", !!(raw_in[r]&(1<<b)));
 
-            //Get the place of the current bit inside the raw variable
-            uint8_t place=((bit*8)%32)+ch;
-
-            //get truth value of current bit and shift to right place
-            data.ch[ch]|=(!!(cur_raw&(1<<place)))<<(bit);
 
         }
+     //   printf("\n");
     }
+
 
 }
 
@@ -179,8 +182,8 @@ void ads1178_service(server interface adc_ads1178_if i_ctrl, ads1178_settings& s
                       settings.p_adc_spi_sclk,
                       settings.c_clk[0],
                       settings.c_clk[1],
-                      SPI_MODE_0,
-                      100000/4 //TODO test more
+                      SPI_MODE_1,
+                      100000/100 //TODO test more
                       );
 
             ads1178_data_t data;
