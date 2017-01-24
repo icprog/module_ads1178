@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <xscope.h>
 
-
+ads1178_data_t x[2000];
 
 #ifdef HARTING_A1
 
@@ -50,14 +50,30 @@
 void main_ctrl(client interface adc_ads1178_if adc_if)
 {
 
+    timer tmr;
+
+    unsigned time;
+    tmr:>time;
+
+
+
     printf("Start!\n");
     int i=0;
     while(1)
     {
         select
         {
+        case tmr when timerafter(time+100000000):> time:
+            printf("%i\n",i);
+            i=0;
+            break;
+
+
         case adc_if.data_ready():
-          ads1178_data_t x = adc_if.get_data();
+          x[i]=adc_if.get_data();
+          i++;
+
+
 #ifdef __XSCOPE__
           xscope_int(CHANNEL0, x.ch[0]);
           xscope_int(CHANNEL1, x.ch[1]);
@@ -68,21 +84,34 @@ void main_ctrl(client interface adc_ads1178_if adc_if)
           xscope_int(CHANNEL6, x.ch[6]);
           xscope_int(CHANNEL7, x.ch[7]);
 # else
-          if(i!=0)
-          printf("0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
-          //printf("%i %i %i %i %i %i %i %i\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
+//          if(i!=0)
+//          printf("0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X 0x%0.4X\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
+//          //printf("%i %i %i %i %i %i %i %i\n", x.ch[0],x.ch[1],x.ch[2],x.ch[3],x.ch[4],x.ch[5],x.ch[6],x.ch[7]);
+          if(i==2000)
+          {
+            for (int ii = 0; ii < 2000; ++ii)
+            {
+                int16_t v=ads1178_processData(x[ii],1);
+                printf("%i \n",v);
+            }
+            printf("END!\n");
+            while(1){};
+            i=0;
+          }
+
 
 #endif
           break;
         }
 
-        i++;
-        if(i==10)
-        {
-            adc_if.power_down();
-            while(1);
-            printf("Done! Power Down!\n");
-        }
+
+
+//        if(i==10)
+//        {
+//            adc_if.power_down();
+//            while(1);
+//            printf("Done! Power Down!\n");
+//        }
     }
 }
 
