@@ -38,6 +38,13 @@
 #include <xclib.h>
 #include <stdio.h>
 
+#define _MASK(B3,B2,B1,B0) (   (B0<<24) | (B1<<16) | (B2<<8) | (B3<<0) )
+#define _GETBIT(VAL,BIT) ((VAL&(1<<BIT))>>BIT)
+
+#define MASK(VAL) _MASK( _GETBIT(VAL,3) , _GETBIT(VAL,2), _GETBIT(VAL,1) ,_GETBIT(VAL,0)  )
+#define MASK_CASE(VAL) case MASK(VAL): val=VAL; break;
+
+
 typedef enum
 {
     SPI_MODE_0,
@@ -59,8 +66,9 @@ static void spi_setup(
 
     stop_clock(cb0);
 
-    configure_clock_ref(cb0, 1);
-    configure_in_port(sclk,  cb0);
+    configure_clock_rate(cb0,100,4);
+//    configure_clock_ref(cb0, 0);
+    configure_in_port(sclk, cb0);
 
     stop_clock(cb1);
     configure_clock_src(cb1, sclk);
@@ -91,13 +99,6 @@ static void spi_setup(
     }
     sync(sclk);
 
-
-    //Set the clock divider
-    stop_clock(cb0);
-    unsigned d = (XS1_TIMER_KHZ + 4*speed_in_khz - 1)/(4*speed_in_khz);
-    configure_clock_ref(cb0, d);
-    start_clock(cb0);
-
 }
 
 
@@ -108,49 +109,60 @@ void spi_transfer_4bits(in buffered port:32 miso,
     partout(sclk, 8, 0xaa); //1010 1010  -> do the clock... 4 cycles ... -> 32 bits
 }
 
+
+int16_t ads1178_processData(const ads1178_data_t raw_in, uint8_t channel)
+{
+
+    int16_t ret=0;
+
+    for (int r = 0;r < 4; ++r)
+    {
+        uint32_t masked = (raw_in.adc_raw[r] & (0x01010101<<channel))>>channel;
+
+        int8_t val;
+        switch(masked)
+        {
+            MASK_CASE(0)
+            MASK_CASE(1)
+            MASK_CASE(2)
+            MASK_CASE(3)
+            MASK_CASE(4)
+            MASK_CASE(5)
+            MASK_CASE(6)
+            MASK_CASE(7)
+            MASK_CASE(8)
+            MASK_CASE(9)
+            MASK_CASE(10)
+            MASK_CASE(11)
+            MASK_CASE(12)
+            MASK_CASE(13)
+            MASK_CASE(14)
+            MASK_CASE(15)
+        }
+        ret|=val<<((3-r)*4);
+    }
+
+    return ret;
+}
+
+
+
+
+
+
 void spi_transfer(
         in buffered port:32 miso,
         out buffered port:32 sclk,
         ads1178_data_t &data)
 {
-    //Raw data storage
-    uint32_t raw_in[4];
-
-    //Init data output to zero
-    for (int i = 0; i < 8; ++i) {
-        data.ch[i]=0;
-    }
 
     //Sample data from spi
     for(size_t cur=0;cur<4;++cur)
     {
-        uint32_t data;
+        uint32_t in_data;
         spi_transfer_4bits(miso,sclk);
-        miso :> data;
-        raw_in[cur]=data;
+        miso :> data.adc_raw[cur];
     }
-    //printf("\n");
-    //fiddle the data out of the stream
-    for (int r = 0; r < 4; ++r)
-    {
-        for (int b = 0; b < 32; ++b)
-        {
-                if( (b/8!=0) || (r>0) )
-                {
-                    data.ch[b%8]<<=1;
-                    //printf("-");
-                }
-                data.ch[b%8]|=!!(raw_in[r]&(1<<b));
-
-                //if(b%8==0)
-                //printf("%i", !!(raw_in[r]&(1<<b)));
-
-
-        }
-     //   printf("\n");
-    }
-
-
 }
 
 typedef enum
@@ -167,7 +179,7 @@ void ads1178_service(server interface adc_ads1178_if i_ctrl, ads1178_settings& s
 #ifdef CLKBLKTHING
     //25MHz
     stop_clock(settings.c_clk[2]);
-    configure_clock_rate(settings.c_clk[2],100,4);
+    configure_clock_rate(settings.c_clk[2],100,8);
     configure_port_clock_output(settings.p_adc_clk, settings.c_clk[2]);
     start_clock(settings.c_clk[2]);
 #endif
@@ -175,7 +187,6 @@ void ads1178_service(server interface adc_ads1178_if i_ctrl, ads1178_settings& s
 
     par
     {
-
         {//MainService
             printf("SPI Setup!\n");
             spi_setup(settings.p_adc_spi_miso8,

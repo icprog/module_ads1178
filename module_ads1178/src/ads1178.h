@@ -59,10 +59,22 @@ typedef struct
 
 /**
  * Data struct for getting data from the ADCs interface
+ * the data is presented in RAW from:
+ * This means the the first value contains the first four bits of all the channels
+ * They are there in this way
+ *
+ *      [Bit 15 of Channel] [Bit 14 of Channel] [Bit 13 of Channel] [Bit 12 of Channel]
+ *[MSB->] 0 1 2 3 4 5 6 7  | 0 1 2 3 4 5 6 7   | 0 1 2 3 4 5 6 7   | 0 1 2 3 4 5 6 7
+ *  this goes the same for the other 3 values but for
+ *  value [1] is bit 11 to bit 8
+ *  value [2] is bit  7 to bit 4
+ *  value [3] is bit  3 to bit 0
+ *
+ *  to get the data out easily use function ads1178_processData
  */
 typedef struct
 {
-    int16_t ch[8]; //!< Channel data
+    uint32_t adc_raw[4]; //!< Channel data
 }ads1178_data_t;
 
 typedef interface adc_ads1178_if
@@ -83,5 +95,13 @@ typedef interface adc_ads1178_if
  */
 void ads1178_service(server interface adc_ads1178_if i_ctrl, ads1178_settings &settings );
 
+
+/**
+ * This function unwraps the bits for the values returned by the ADCs service
+ * @param raw_in
+ * @param channel
+ * @return
+ */
+int16_t ads1178_processData(const ads1178_data_t raw_in, uint8_t channel);
 
 #endif /* ADS1178_H_ */
